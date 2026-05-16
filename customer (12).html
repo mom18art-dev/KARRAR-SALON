@@ -221,8 +221,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:#f7f3ee;min-heigh
 const CONFIG = {
   BIN_ID:       '69fea248c0954111d8f954aa',
   API_KEY:      '$2a$10$xxo3kGCW6jGSoHj3200WmOpkK4wI88Bm9Ac6MBYaMAGMH0k6Ggwum',
-  TG_BOT_TOKEN: '8713426615:AAH21qSvWdT447uRUQtLziWpqNF0TLXH0C0',
-  TG_CHAT_ID:   '7706249764',
+  NTFY_TOPIC:   'karrar-salon-iq-p9k4m2x7',
 };
 // ============================================================
 
@@ -299,22 +298,9 @@ async function saveData(){
 }
 
 // FIX: إشعارات من localStorage فقط
-async function sendTelegram(msg){
-  const token=CONFIG.TG_BOT_TOKEN;
-  const chat=CONFIG.TG_CHAT_ID;
-  if(!token||!chat)return;
-  try{
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:chat,text:msg,parse_mode:'HTML'})
-    });
-  }catch(e){console.log('Telegram error',e);}
-}
-
 async function sendNtfy(msg){
   try{
-    await fetch('https://ntfy.sh/karrar-salon-iq-p9k4m2x7',{
+    await fetch(`https://ntfy.sh/${CONFIG.NTFY_TOPIC}`,{
       method:'POST',
       headers:{'Title':'كوافير كرار','Priority':'high','Tags':'scissors'},
       body:msg
@@ -324,7 +310,6 @@ async function sendNtfy(msg){
 
 async function notify(title,msg){
   sendNtfy(msg);
-  sendTelegram(msg);
 }
 
 // FIX: Slot past بهامش 30 دقيقة بعد انتهاء الوقت
@@ -532,7 +517,7 @@ async function handleWaitlist(){
   data.waitlist.push(entry);
   try{
     await saveData();
-    sendTelegram(`⏳ <b>انتظار جديد</b>\n\n👤 ${name}\n📅 ${selDateLabel}\n📞 ${phone}`);
+    notify('انتظار جديد ⏳',`⏳ انتظار جديد\n\n👤 ${name}\n📅 ${selDateLabel}\n📞 ${phone}`);
     document.getElementById('w-day').textContent=selDateLabel;
     document.getElementById('formView').classList.add('hidden');
     document.getElementById('waitlistView').classList.remove('hidden');
